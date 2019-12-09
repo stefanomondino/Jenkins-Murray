@@ -1,0 +1,58 @@
+#main bundle identifier.
+@app_id = ""
+@slack_channel = "#ios-integrations"
+
+#username for appstore connect and dev portal
+@username = ENV["FASTLANE_MAIN_ACCOUNT"]
+
+#url for certificates. Injected by jenkins
+@git_url = ENV["CERTS_GIT_URL"]
+
+#name of xcodeproj file
+@path_xcodeprojfile = ".xcodeproj"
+
+#name of app's target
+@target_app = ""
+
+#app's main scheme
+@app_scheme = ""
+
+#app's name for Slack messages
+@app_name = ""
+
+@keychain_name = ENV["MATCH_KEYCHAIN_NAME"]
+@keychain_password = ENV["MATCH_KEYCHAIN_PASSWORD"]
+
+#from firebase panel
+@firebase_distribution_key = ""
+
+#change this to proper Info.plist path
+@plist_path = ""
+
+@environment = ENV["ENVIRONMENT"] || "appstore"
+
+#type to use with match. can be enterprise, appstore, adhoc
+
+@local_build_number = ENV["BUILD_NUMBER"]
+
+@distributions_groups = [''] #default distribution groups for fabric and firebase
+
+case @environment
+
+    when "enterprise"
+        @app_name = @app_name + " Enterprise" 
+        @app_id = "" #bundle id for the app
+        @team_id_account = "" #team id 
+        @team_name = "" #team name - copypaste from developer.apple.com
+        @git_branch = "" #git branch for match
+        @export_method = "" #export method - ad-hoc, enterprise, app-store
+        @match_type = "enterprise" #match type - adhoc, enterprise, appstore
+        @deploy_on = "firebase" #or "fabric" or "appstore"
+        @add_beta_badge = true #add badge to app icon
+    
+    else
+end
+
+@ipa_name = "app.ipa" 
+@ipa_folder = "./Build/#{@app_scheme}"
+

@@ -1,0 +1,53 @@
+{
+  "destinationBaseFolder" : "./",
+  "bones" : [
+    {
+      "description" : "Aggregates sub-bones `scene` and `listViewModel`",
+      "subBones" : ["jenkinsfile","fastlane","pluginfile"], 
+      "name" : "jenkins"
+    },
+    {
+      "placeholder" : "Bone",
+      "createSubfolder" : false,
+      "folderPath" : "",
+      "description" : "Create Jenkinsfile",
+      "subBones" : [],
+      "isPrivate": true,
+      "files" : [
+        "Jenkinsfile"
+      ],
+      "name" : "jenkinsfile"
+    },
+    {
+      "placeholder" : "Bone",
+      "createSubfolder" : true,
+      "folderPath" : "fastlane",
+      "description" : "Create fastlane files",
+      "subBones" : [],
+      "isPrivate": true,
+      "files" : [
+        "fastlane/Fastfile",
+        "fastlane/Pluginfile",
+        "fastlane/Setupfile",
+        "fastlane/Snapfile",
+        "fastlane/SnapshotHelper.swift"
+      ],
+      "name" : "fastlane"
+    },
+    {
+      "description" : "Add Gemfile import of pluginfile",
+      "name" : "pluginfile",
+      "isPrivate": true,
+      "otherFilesRules": [
+        {
+          "filePath": "Gemfile",
+          "placeholder": "\"\u0003\"",
+          "text": "plugins_path = File.join(File.dirname(__FILE__), 'fastlane', 'Pluginfile')\neval_gemfile(plugins_path) if File.exist?(plugins_path)"
+        }
+      ]
+    }
+
+  ],
+  "name" : "Jenkins",
+  "sourcesBaseFolder" : ""
+}

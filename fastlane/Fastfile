@@ -1,0 +1,172 @@
+import "Setupfile"
+
+fastlane_version "2.137.0"
+
+default_platform :ios
+
+platform :ios do
+
+    before_each do |lane, options|
+        setup_jenkins(
+            keychain_path: @keychain_name,
+            keychain_password: @keychain_password,
+            add_keychain_to_search_list: true
+        )
+    end
+    
+    lane :pods do
+        cocoapods(try_repo_update_on_error: true)
+    end
+    
+    lane :setup_build_number do
+         increment_build_number(build_number: @local_build_number)
+    end
+    
+    lane :screenshots do
+        capture_screenshots
+    end
+    
+    lane :project_setup do
+        pods
+        setup_build_number
+    end
+    
+    lane :upload_screenshots do
+        deliver(
+               force:true,
+               username: @username,
+               team_name: @team_name,
+               skip_screenshots: false,
+               skip_binary_upload: true,
+               skip_metadata: true
+           )
+    end
+    
+    lane :build_application do
+    
+        disable_automatic_code_signing
+        
+        if @add_beta_badge
+            add_badge(dark: true)
+        end
+        
+        match(
+             app_identifier: @app_id,
+             git_url: @git_url,
+             git_branch: @git_branch,
+             username: @username,
+             type: @match_type,
+             team_id: @team_id_account,
+             force_for_new_devices: true,
+             keychain_name: @keychain_name,
+             keychain_password: @keychain_password,
+             verbose: true)
+             
+        update_app_identifier(
+            plist_path: @plist_path,
+            app_identifier: @app_id)
+        
+        update_project_provisioning(
+            xcodeproj: @path_xcodeprojfile,
+            target_filter: "^#{@target_app}$",
+            code_signing_identity: "iPhone Distribution",
+            profile: ENV["sigh_#{@app_id}_#{@match_type}_profile-path"])
+        
+        update_project_team(teamid: @team_id_account)
+            
+        gym(
+          clean: true,
+          scheme: @app_scheme,
+          output_directory: @ipa_path,
+          include_symbols: true,
+          output_name: @ipa_name,
+          skip_profile_detection: true,
+          export_method: @export_method
+        )
+        
+        case @deploy_on
+            when 'fabric'
+                crashlytics_deploy
+            when 'firebase'
+                firebase_deploy
+            when 'appstore'
+                appstore_deploy
+        else
+        end
+        
+        post_to_slack
+    end
+
+    #DEPLOY LANES
+    
+   lane :crashlytics_deploy do
+        crashlytics(api_token: @crashlytics_id,
+        build_secret: @crashlytics_secret,
+        groups: @distributions_groups,
+        notes: ENV["RELEASE_NOTES"],
+        notifications: true)
+    end
+    
+    lane :firebase_deploy do
+        firebase_app_distribution(
+            app: @firebase_distribution_key,
+            groups: @distributions_groups.join(", "),
+            firebase_cli_token: ENV["FIREBASE_TOKEN"],
+            release_notes: ENV["RELEASE_NOTES"]
+        )
+    end
+    
+    lane :appstore_deploy do
+        deliver(
+            force:true,
+            username: @username,
+            team_name: @team_name,
+            skip_screenshots: true,
+            skip_metadata: true
+        )
+    end
+    
+    #SLACK
+    
+    lane :post_to_slack do |params|
+    
+        name = params[:name] || @app_name
+        slack_url = ENV["SLACK_URL"]
+        slack(
+          slack_url: slack_url,
+          message: "#{name} successfully released!",
+          channel: "#ios-integrations",
+          success: true,
+          payload: {  # Optional, lets you specify any number of your own Slack attachments.
+            "Build Date" => Time.new.to_s,
+            "Built by" => "MacMinion"
+          },
+          default_payloads: [:git_branch, :git_author]
+        )
+    end
+    
+    lane :post_error_to_slack do |params|
+       
+        name = params[:name] || @app_name
+        slack(
+            slack_url: ENV["SLACK_URL"],
+            message: "#{name} build had an error!",
+            channel: @slack_channel,
+            success: false,
+            payload: {  # Optional, lets you specify any number of your own Slack attachments.
+                "Build Date" => Time.new.to_s,
+                "Built by" => "MacMinion"
+            },
+            default_payloads: [:git_branch, :git_author]
+        )
+    end
+    
+    error do |lane, exception|
+        post_error_to_slack
+    end
+    
+end
+
+
+
+
