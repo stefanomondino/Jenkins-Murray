@@ -20,8 +20,8 @@
     },
     {
       "placeholder" : "Bone",
-      "createSubfolder" : true,
-      "folderPath" : ".",
+      "createSubfolder" : false,
+      "folderPath" : "./fastlane",
       "description" : "Create fastlane files",
       "subBones" : [],
       "isPrivate": true,
