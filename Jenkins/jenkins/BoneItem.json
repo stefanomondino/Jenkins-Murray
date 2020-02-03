@@ -1,0 +1,16 @@
+{
+  "parameters" : [],
+  "plugins" : {},
+  "name" : "jenkins",
+  "replacements" : [],
+  "paths" : [
+      {
+          "from": "fastlane",
+          "to": "fastlane"
+      },
+      {
+          "from": "Jenkinsfile",
+          "to": "Jenkinsfile"
+      }
+  ]
+}

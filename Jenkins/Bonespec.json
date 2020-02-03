@@ -1,0 +1,13 @@
+{
+  "description" : "Default description",
+  "groups" : [
+    {
+      "items" : [
+        "jenkins\/BoneItem.json"
+      ],
+      "description" : "Created from scaffold",
+      "name" : "jenkins"
+    }
+  ],
+  "name" : "jenkins"
+}

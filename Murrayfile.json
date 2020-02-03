@@ -1,0 +1,8 @@
+{
+  "environment" : {
+
+  },
+  "specPaths" : [
+    ".\/Jenkins\/Bonespec.json"
+  ]
+}
