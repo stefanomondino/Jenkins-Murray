@@ -1,6 +1,6 @@
 {
   "description" : "Default description",
-  "groups" : [
+  "procedures" : [
     {
       "items" : [
         "jenkins\/BoneItem.json"

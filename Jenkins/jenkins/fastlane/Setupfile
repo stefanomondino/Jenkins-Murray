@@ -3,7 +3,7 @@
 @slack_channel = "#ios-integrations"
 
 #username for appstore connect and dev portal
-@username = ENV["FASTLANE_MAIN_ACCOUNT"]
+@username = ENV["APPLE_ID"]
 
 #url for certificates. Injected by jenkins
 @git_url = ENV["CERTS_GIT_URL"]
@@ -28,6 +28,7 @@
 
 #change this to proper Info.plist path
 @plist_path = ""
+@firebase_plist_path = nil 
 
 @environment = ENV["ENVIRONMENT"] || "appstore"
 
@@ -36,6 +37,8 @@
 @local_build_number = ENV["BUILD_NUMBER"]
 
 @distributions_groups = [''] #default distribution groups for fabric and firebase
+
+#@xcode_version = "11.3" #uncomment for specific xcode version
 
 case @environment
 
@@ -47,12 +50,7 @@ case @environment
         @git_branch = "" #git branch for match
         @export_method = "" #export method - ad-hoc, enterprise, app-store
         @match_type = "enterprise" #match type - adhoc, enterprise, appstore
-        @deploy_on = "firebase" #or "fabric" or "appstore"
+        @deploy_on = "firebase"  or "appstore"
         @add_beta_badge = true #add badge to app icon
-    
     else
 end
-
-@ipa_name = "app.ipa" 
-@ipa_folder = "./Build/#{@app_scheme}"
-

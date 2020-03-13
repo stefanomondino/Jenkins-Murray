@@ -12,16 +12,19 @@ pipeline {
             defaultValue: false,
             description: 'Create screenshots',
             name : 'SCREENSHOTS')
-
-         booleanParam (
+        booleanParam (
             defaultValue: true,
             description: 'Compile and distribute enterprise',
             name : 'ENTERPRISE')
-
         booleanParam (
             defaultValue: false,
             description: 'Compile and distribute appstore',
             name : 'APPSTORE')
+        string(
+            name: 'BRANCH_NAME',
+            defaultValue: 'develop',
+            description: 'Git Branch for checkout'
+        )
         text (
             name: 'RELEASE_NOTES',
             defaultValue: 'Released with Fastlane and Jenkins',
@@ -29,14 +32,29 @@ pipeline {
     }
     
     environment {
+        APPLE_ID = "${env.APPLE_ID}"
         MATCH_KEYCHAIN_NAME = "${env.KEYCHAIN_NAME}"
-        MATCH_KEYCHAIN_PASSWORD = "${env.SYSTEM_KEYCHAIN_PASSWORD}"
-        MATCH_PASSWORD = "${env.SYN_MATCH_PASSWORD}"
         JOB_NAME = "${env.JOB_BASE_NAME}"
         SLACK_URL = "${env.SLACK_IOS_URL}"
         RELEASE_NOTES = "${params.RELEASE_NOTES}"
+        FASTLANE_SESSION = credentials('FASTLANE_SESSION')
+        FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD = credentials('FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD')
+        MATCH_PASSWORD = credentials('SYN_MATCH_PASSWORD')
+        MATCH_KEYCHAIN_PASSWORD = credentials('SYSTEM_KEYCHAIN_PASSWORD')
+        FIREBASE_TOKEN = credentials('FIREBASE_TOKEN')
+        FASTLANE_PASSWORD = credentials('FASTLANE_PASSWORD')
     }
     stages {
+        stage('Git Checkout') {
+                    steps {
+                        checkout([$class                           : 'GitSCM',
+                                  branches                         : [[name: params.BRANCH_NAME]],
+                                  doGenerateSubmoduleConfigurations: false,
+                                  extensions                       : scm.extensions,
+                                  userRemoteConfigs                : scm.userRemoteConfigs
+                        ])
+                    }
+                }
         stage("Init") {
             steps {
                 
@@ -99,11 +117,10 @@ pipeline {
         
     }
     post {
-        failure {
-            updateGitlabCommitStatus name: 'build', state: 'failed'
-        }
-        success {
-            updateGitlabCommitStatus name: 'build', state: 'success'
+         post {
+            always {
+                archiveArtifacts artifacts: 'Build/**/*', onlyIfSuccessful: true
+            }
         }
     }
 }
