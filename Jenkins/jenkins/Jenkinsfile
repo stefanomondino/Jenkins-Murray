@@ -119,7 +119,7 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: 'Build/**/*', onlyIfSuccessful: true
+            archiveArtifacts artifacts: 'output/**/*', onlyIfSuccessful: true
         }
     }
 }
