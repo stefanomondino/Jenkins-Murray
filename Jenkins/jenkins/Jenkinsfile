@@ -116,11 +116,10 @@ pipeline {
         }
         
     }
+
     post {
-         post {
-            always {
-                archiveArtifacts artifacts: 'Build/**/*', onlyIfSuccessful: true
-            }
+        always {
+            archiveArtifacts artifacts: 'Build/**/*', onlyIfSuccessful: true
         }
     }
 }

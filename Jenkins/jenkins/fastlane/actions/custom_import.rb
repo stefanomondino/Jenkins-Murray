@@ -93,6 +93,7 @@ module Fastlane
         dest_p12_path = File.join(output_dir, "#{matching_cert_id}.p12")
 
         output_dir = File.join(storage.prefixed_working_directory, "profiles", params[:type].to_s)
+        FileUtils.mkdir_p(output_dir)
         dest_profile_path = File.join(output_dir, "#{profile_type_name(params[:type].to_s)}_#{params[:app_identifier].first.to_s}.mobileprovision")
 
         # Copy files
